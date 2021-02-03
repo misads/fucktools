@@ -13,6 +13,8 @@ import requests
 import re
 import getpass
 import time
+from PIL import Image
+import six
 
 classes = [
     # '04757',
@@ -67,9 +69,19 @@ def LoginByPost(username, password):
     if a:
         a = a.group(1)
     execution = a
+
+    # 验证码
+    kaptcha = 'https://sso.tju.edu.cn/cas/images/kaptcha.jpg'
+    res = s.get(kaptcha, stream=True)
+    res.encoding = 'utf-8'
+    
+    im = Image.open(six.BytesIO(res.content))
+    im.show()
     # print(execution)
     # ready for posting data
-    postData = {'username': username, 'password': password, 'execution': execution, '_eventId': 'submit', 'geolocation=': ''}
+    captcha = input('请输入验证码: ')
+
+    postData = {'username': username, 'password': password, 'execution': execution, '_eventId': 'submit', 'geolocation=': '', 'captcha': captcha}
 
     # res.encoding = 'gb2312'
 
@@ -80,7 +92,10 @@ def LoginByPost(username, password):
 
     # print(rs.status_code)
     if rs.status_code != 200:
-        color_print('账号或密码错误', 1)
+        if 'Captcha Mismatch' in rs.text:
+            color_print('验证码错误', 1)
+        else:
+            color_print('账号或密码错误', 1)
         return
     color_print('登陆成功', 2)
 
@@ -194,7 +209,7 @@ if __name__ == '__main__':
     while True:
         try:
             LoginByPost(username, passwd)
-            exit(0)  # 正常返回，则退出
+            break
         except:
             color_print('网络异常，延时1分钟后重试...', 1)
             time.sleep(60)
