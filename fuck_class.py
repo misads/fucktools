@@ -187,10 +187,10 @@ def LoginByPost(username, password):
 
 
 if __name__ == '__main__':
-    # username = input('Enter your username (201*******): ')
-    # passwd = getpass.getpass("Enter your password: ")
-    username = '2019234137'
-    passwd = '023301'
+    username = input('Enter your username (201*******): ')
+    passwd = getpass.getpass("Enter your password: ")
+    # username = '2019******'
+    # passwd = '666666'
     while True:
         try:
             LoginByPost(username, passwd)
